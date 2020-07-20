@@ -3,6 +3,7 @@ import SwiftUI
 struct ContentView: View {
 
     // MARK: - Properties
+    @State private var showingAlert = false
     @State var showingCreateSheet = false
 
     @State private var links: [LinkItem] = {
@@ -21,8 +22,17 @@ struct ContentView: View {
         List {
             ForEach(links, id: \.self) { link in
                 VStack(alignment: .leading) {
-                    Link(link.name, destination: URL(string:link.urlString)!)
+                    Link(link.name, destination: URL(string: link.urlString)!)
                     Text(link.urlString).font(.caption)
+                }
+                .onLongPressGesture {
+                    UIPasteboard.general.string = link.urlString
+                    self.showingAlert = true
+                }
+                .alert(isPresented: $showingAlert) {
+                    Alert(title: Text("Link copied"),
+                          message: Text(link.urlString),
+                          dismissButton: .default(Text("OK")))
                 }
             }
             .onDelete(perform: delete)
